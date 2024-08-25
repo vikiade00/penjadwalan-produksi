@@ -78,8 +78,6 @@ function JadwalProduksi() {
     loadJadwalProduksi();
   }, []);
 
-  console.log(jadwalProduksi);
-
   const columns = useMemo(
     () => [
       {

@@ -18,7 +18,6 @@ function Login() {
     e.preventDefault();
     try {
       const result = await login(username, password);
-      console.log("Login result:", result); // Debugging log
       if (result) {
         const { token, nama, role } = result;
         localStorage.setItem("token", token);

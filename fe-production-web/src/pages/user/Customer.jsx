@@ -27,7 +27,7 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
-import { GlobalFilter } from "@/components/GlobalFillter"; // Import a custom GlobalFilter component
+import { GlobalFilter } from "@/components/GlobalFillter";
 import { useCustomer } from "@/context/CustomerContext";
 import {
   Pagination,
@@ -380,22 +380,7 @@ function Customer() {
               disabled={!table.getCanPreviousPage()}
             />
           </PaginationItem>
-          {table.getPageCount() > 0 &&
-            Array.from({ length: table.getPageCount() }, (_, i) => i + 1).map(
-              (page) => (
-                <PaginationItem key={page}>
-                  <PaginationLink
-                    className=" cursor-pointer"
-                    onClick={() => table.setPageIndex(page - 1)}
-                    isActive={
-                      page === table.getState().pagination.pageIndex + 1
-                    }
-                  >
-                    {page}
-                  </PaginationLink>
-                </PaginationItem>
-              )
-            )}
+
           <PaginationItem>
             <PaginationNext
               className=" cursor-pointer"

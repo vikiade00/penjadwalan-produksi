@@ -13,15 +13,15 @@ function App() {
       <PrintProvider>
         <AuthProvider>
           <UserProvider>
-            <SpkProvider>
-              <JadwalProduksiProvider>
-                <PesananProvider>
+            <PesananProvider>
+              <SpkProvider>
+                <JadwalProduksiProvider>
                   <CustomerProvider>
                     <MainRoute />
                   </CustomerProvider>
-                </PesananProvider>
-              </JadwalProduksiProvider>
-            </SpkProvider>
+                </JadwalProduksiProvider>
+              </SpkProvider>
+            </PesananProvider>
           </UserProvider>
         </AuthProvider>
       </PrintProvider>

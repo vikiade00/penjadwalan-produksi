@@ -1,3 +1,8 @@
-const baseUrl = import.meta.env.VITE_BASE_URL;
+const token = localStorage.getItem("token");
+export const baseUrl = import.meta.env.VITE_BASE_URL;
 
-export default baseUrl;
+export const tokenRole = {
+  headers: {
+    Authorization: `Bearer ${token}`,
+  },
+};

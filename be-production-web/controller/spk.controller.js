@@ -38,9 +38,14 @@ exports.updateSPKStatus = async (req, res) => {
     pesanan.status_pesanan = status;
     jadwalProduksi.status = status;
 
-    // Jika status selesai, update tanggal selesai pada jadwal produksi
-    if (status.toLowerCase() === "selesai") {
-      jadwalProduksi.tanggal_selesai = dayjs().format("YYYY-MM-DD");
+    const tanggalSelesai = dayjs().startOf("day"); // Mengabaikan waktu, hanya mempertimbangkan tanggal
+
+    if (tanggalSelesai.isAfter(dayjs(pesanan.tanggal_tenggat).startOf("day"))) {
+      jadwalProduksi.status = "Telat";
+      jadwalProduksi.tanggal_selesai = tanggalSelesai.format("YYYY-MM-DD");
+    } else {
+      jadwalProduksi.status = "Selesai"; // Status tetap selesai jika tidak melebihi atau sama dengan tenggat
+      jadwalProduksi.tanggal_selesai = tanggalSelesai.format("YYYY-MM-DD");
     }
 
     await pesanan.save();

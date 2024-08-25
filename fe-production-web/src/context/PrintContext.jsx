@@ -3,6 +3,13 @@ import axios from "axios";
 import toast from "react-hot-toast";
 import api from "@/api/api";
 
+const token = localStorage.getItem("token");
+export const tokenRole = {
+  headers: {
+    Authorization: `Bearer ${token}`,
+  },
+};
+
 const PrintContext = createContext();
 
 export const PrintProvider = ({ children }) => {
@@ -15,7 +22,9 @@ export const PrintProvider = ({ children }) => {
       if (Object.keys(params).length > 0) {
         url += `?${new URLSearchParams(params).toString()}`;
       }
-      const response = await axios.get(url, { responseType: "json" });
+      const response = await axios.get(url, tokenRole, {
+        responseType: "json",
+      });
       const data = response.data;
 
       // Open a new tab for printing

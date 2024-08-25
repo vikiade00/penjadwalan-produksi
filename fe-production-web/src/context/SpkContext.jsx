@@ -8,17 +8,26 @@ import React, {
 import axios from "axios";
 import { toast } from "react-hot-toast";
 import api from "@/api/api";
+import { usePesanan } from "./PesananContext";
+
+const token = localStorage.getItem("token");
+export const tokenRole = {
+  headers: {
+    Authorization: `Bearer ${token}`,
+  },
+};
 
 const SpkContext = createContext();
 
 export const SpkProvider = ({ children }) => {
   const [spk, setSpk] = useState([]);
   const [loading, setLoading] = useState(false);
+  const { fetchPesanan } = usePesanan();
 
   const fetchSpk = useCallback(async () => {
     setLoading(true);
     try {
-      const response = await axios.get(`${api}/spk`);
+      const response = await axios.get(`${api}/spk`, tokenRole);
       setSpk(response.data.spkList || []);
     } catch (error) {
       toast.error("Failed to fetch SPK");
@@ -30,7 +39,7 @@ export const SpkProvider = ({ children }) => {
 
   const getSpkById = async (id) => {
     try {
-      const response = await axios.get(`${api}/spk/${id}`);
+      const response = await axios.get(`${api}/spk/${id}`, tokenRole);
       return response.data.spk;
     } catch (error) {
       toast.error("Failed to fetch SPK details");
@@ -41,16 +50,20 @@ export const SpkProvider = ({ children }) => {
   const updateSPKStatus = async (id, status) => {
     setLoading(true);
     try {
-      const response = await axios.put(`${api}/spk/${id}`, {
-        status: status,
-      });
-      // Update SPK data
-      setSpk((prevSpk) =>
-        prevSpk.map((item) => (item._id === id ? response.data.spk : item))
+      const response = await axios.put(
+        `${api}/spk/${id}`,
+        { status },
+        tokenRole
       );
-      // Refresh data
-      await fetchSpk();
+      const updatedSpk = response.data.spk;
+
+      // Update SPK data locally
+      setSpk((prevSpk) =>
+        prevSpk.map((item) => (item._id === id ? updatedSpk : item))
+      );
+
       toast.success("SPK status updated successfully");
+      fetchPesanan(); // Optionally refresh Pesanan data
     } catch (error) {
       toast.error("Failed to update SPK status");
       console.log(error);
@@ -60,7 +73,8 @@ export const SpkProvider = ({ children }) => {
   };
 
   useEffect(() => {
-    fetchSpk(); // Hanya memanggil fetchSpk sekali saat mount
+    fetchSpk();
+    fetchPesanan();
   }, [fetchSpk]);
 
   return (

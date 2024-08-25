@@ -3,6 +3,13 @@ import axios from "axios";
 import { toast } from "react-hot-toast";
 import api from "@/api/api";
 
+const token = localStorage.getItem("token");
+export const tokenRole = {
+  headers: {
+    Authorization: `Bearer ${token}`,
+  },
+};
+
 const PesananContext = createContext();
 
 export const PesananProvider = ({ children }) => {
@@ -14,11 +21,11 @@ export const PesananProvider = ({ children }) => {
   const fetchPesanan = async () => {
     setLoading(true);
     try {
-      const response = await axios.get(`${api}/pesanan`);
+      const response = await axios.get(`${api}/pesanan`, tokenRole);
       setPesanan(response.data.pesanan);
     } catch (error) {
       toast.error("Gagal memuat pesanan");
-      console.error("Error fetching pesanans:", error);
+      console.error("Error fetching pesanan:", error);
     } finally {
       setLoading(false);
     }
@@ -26,7 +33,7 @@ export const PesananProvider = ({ children }) => {
 
   const fetchCustomers = async () => {
     try {
-      const response = await axios.get(`${api}/customers`);
+      const response = await axios.get(`${api}/customers`, tokenRole);
       setCustomers(response.data);
     } catch (error) {
       toast.error("Gagal memuat customer");
@@ -37,7 +44,7 @@ export const PesananProvider = ({ children }) => {
   const addPesanan = async (pesanan) => {
     setLoading(true);
     try {
-      const response = await axios.post(`${api}/pesanan`, pesanan);
+      const response = await axios.post(`${api}/pesanan`, pesanan, tokenRole);
       setPesanan((prevPesanan) => [...prevPesanan, response.data]);
       toast.success("Pesanan berhasil ditambahkan");
     } catch (error) {
@@ -51,7 +58,11 @@ export const PesananProvider = ({ children }) => {
   const updatePesanan = async (id, updatedPesanan) => {
     setLoading(true);
     try {
-      const response = await axios.put(`${api}/pesanan/${id}`, updatedPesanan);
+      const response = await axios.put(
+        `${api}/pesanan/${id}`,
+        updatedPesanan,
+        tokenRole
+      );
       setPesanan((prevPesanan) =>
         prevPesanan.map((pesanan) =>
           pesanan._id === id ? response.data : pesanan
@@ -68,7 +79,7 @@ export const PesananProvider = ({ children }) => {
   const removePesanan = async (id) => {
     setLoading(true);
     try {
-      await axios.delete(`${api}/pesanan/${id}`);
+      await axios.delete(`${api}/pesanan/${id}`, tokenRole);
       setPesanan((prevPesanan) =>
         prevPesanan.filter((pesanan) => pesanan._id !== id)
       );

@@ -32,7 +32,7 @@ import { useAuth } from "@/context/AuthContext";
 // Define user roles and their access
 const rolesAccess = {
   admin: ["dashboard", "customers", "pesanan", "produksi", "spk"],
-  Pemilik: ["dashboard", "users", "customers", "pesanan", "produksi", "spk"],
+  pemilik: ["dashboard", "users", "customers", "pesanan", "produksi", "spk"],
   produksi: ["dashboard", "produksi", "spk"],
 };
 

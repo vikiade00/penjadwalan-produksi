@@ -1,4 +1,5 @@
 import api from "@/api/api";
+import { tokenRole } from "@/utils/constant";
 import React, { useEffect, useState } from "react";
 import ReactApexChart from "react-apexcharts";
 
@@ -36,7 +37,8 @@ const LineChart = ({ startDate, endDate, granularity }) => {
 
       try {
         const response = await fetch(
-          `${api}/jadwal/grafik-produksi/periode?startDate=${startDate}&endDate=${endDate}&granularity=${granularity}`
+          `${api}/jadwal/grafik-produksi/periode?startDate=${startDate}&endDate=${endDate}&granularity=${granularity}`,
+          tokenRole
         );
         const data = await response.json();
 

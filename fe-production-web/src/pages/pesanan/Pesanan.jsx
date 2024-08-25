@@ -465,22 +465,6 @@ function Pesanan() {
               disabled={!table.getCanPreviousPage()}
             />
           </PaginationItem>
-          {table.getPageCount() > 0 &&
-            Array.from({ length: table.getPageCount() }, (_, i) => i + 1).map(
-              (page) => (
-                <PaginationItem key={page}>
-                  <PaginationLink
-                    className=" cursor-pointer"
-                    onClick={() => table.setPageIndex(page - 1)}
-                    isActive={
-                      page === table.getState().pagination.pageIndex + 1
-                    }
-                  >
-                    {page}
-                  </PaginationLink>
-                </PaginationItem>
-              )
-            )}
           <PaginationItem>
             <PaginationNext
               className=" cursor-pointer"

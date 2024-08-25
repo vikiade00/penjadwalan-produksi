@@ -59,7 +59,6 @@ function Spk() {
     pageIndex: 0,
     pageSize: 5,
   });
-  console.log(spk);
   const handlePageSizeChange = (event) => {
     const newPageSize = Number(event.target.value);
     setPagination((prev) => ({
@@ -87,10 +86,12 @@ function Spk() {
 
       if (newStatus === "Selesai") {
         const tenggat = dayjs(selectedSPK.id_pesanan?.tanggal_tenggat);
-        const tanggalSelesai = dayjs(); // Mengambil tanggal hari ini
+        const tanggalSelesai = dayjs().startOf("day"); // Mengabaikan waktu, hanya mempertimbangkan tanggal
 
         if (tanggalSelesai.isAfter(tenggat)) {
           statusToUpdate = "Telat";
+        } else {
+          statusToUpdate = "Selesai"; // Status tetap selesai jika tidak melebihi atau sama dengan tenggat
         }
       }
 

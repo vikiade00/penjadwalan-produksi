@@ -3,6 +3,13 @@ import axios from "axios";
 import { toast } from "react-hot-toast";
 import api from "@/api/api";
 
+const token = localStorage.getItem("token");
+export const tokenRole = {
+  headers: {
+    Authorization: `Bearer ${token}`,
+  },
+};
+
 const UserContext = createContext();
 
 export const UserProvider = ({ children }) => {
@@ -12,7 +19,7 @@ export const UserProvider = ({ children }) => {
   const fetchUsers = async () => {
     setLoading(true);
     try {
-      const response = await axios.get(`${api}/users`);
+      const response = await axios.get(`${api}/users`, tokenRole);
       setUsers(response.data);
     } catch (error) {
       toast.error("Gagal mengambil data pengguna");
@@ -24,7 +31,7 @@ export const UserProvider = ({ children }) => {
   const addUser = async (user) => {
     setLoading(true);
     try {
-      const response = await axios.post(`${api}/users`, user);
+      const response = await axios.post(`${api}/users`, user, tokenRole);
       setUsers((prevUsers) => [...prevUsers, response.data]);
       toast.success("Pengguna berhasil ditambahkan");
       fetchUsers();
@@ -39,7 +46,11 @@ export const UserProvider = ({ children }) => {
   const updateUser = async (id, updatedUser) => {
     setLoading(true);
     try {
-      const response = await axios.put(`${api}/users/${id}`, updatedUser);
+      const response = await axios.put(
+        `${api}/users/${id}`,
+        updatedUser,
+        tokenRole
+      );
       setUsers((prevUsers) =>
         prevUsers.map((user) => (user._id === id ? response.data : user))
       );
@@ -55,7 +66,7 @@ export const UserProvider = ({ children }) => {
   const removeUser = async (id) => {
     setLoading(true);
     try {
-      await axios.delete(`${api}/users/${id}`);
+      await axios.delete(`${api}/users/${id}`, tokenRole);
       setUsers((prevUsers) => prevUsers.filter((user) => user._id !== id));
       toast.success("Pengguna berhasil dihapus");
       fetchUsers();
@@ -67,7 +78,10 @@ export const UserProvider = ({ children }) => {
   };
 
   useEffect(() => {
-    fetchUsers();
+    const userRole = localStorage.getItem("role");
+    if (userRole === "pemilik") {
+      fetchUsers();
+    }
   }, []);
 
   return (

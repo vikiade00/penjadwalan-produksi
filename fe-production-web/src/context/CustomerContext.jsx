@@ -3,6 +3,13 @@ import axios from "axios";
 import { toast } from "react-hot-toast";
 import api from "@/api/api";
 
+const token = localStorage.getItem("token");
+export const tokenRole = {
+  headers: {
+    Authorization: `Bearer ${token}`,
+  },
+};
+
 const CustomerContext = createContext();
 
 export const CustomerProvider = ({ children }) => {
@@ -12,7 +19,7 @@ export const CustomerProvider = ({ children }) => {
   const fetchCustomers = async () => {
     setLoading(true);
     try {
-      const response = await axios.get(`${api}/customers`);
+      const response = await axios.get(`${api}/customers`, tokenRole);
       setCustomers(response.data);
     } catch (error) {
       toast.error("Failed to fetch customers");
@@ -24,7 +31,11 @@ export const CustomerProvider = ({ children }) => {
   const addCustomer = async (customer) => {
     setLoading(true);
     try {
-      const response = await axios.post(`${api}/customers`, customer);
+      const response = await axios.post(
+        `${api}/customers`,
+        customer,
+        tokenRole
+      );
       setCustomers((prevCustomers) => [...prevCustomers, response.data]);
       toast.success("Customer added successfully");
       fetchCustomers();
@@ -41,7 +52,8 @@ export const CustomerProvider = ({ children }) => {
     try {
       const response = await axios.put(
         `${api}/customers/${id}`,
-        updatedCustomer
+        updatedCustomer,
+        tokenRole
       );
       setCustomers((prevCustomers) =>
         prevCustomers.map((customer) =>
@@ -60,7 +72,7 @@ export const CustomerProvider = ({ children }) => {
   const removeCustomer = async (id) => {
     setLoading(true);
     try {
-      await axios.delete(`${api}/customers/${id}`);
+      await axios.delete(`${api}/customers/${id}`, tokenRole);
       setCustomers((prevCustomers) =>
         prevCustomers.filter((customer) => customer._id !== id)
       );
