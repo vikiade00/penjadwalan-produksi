@@ -3,23 +3,31 @@ import axios from "axios";
 import { toast } from "react-hot-toast";
 import api from "@/api/api";
 import { usePesanan } from "./PesananContext";
-const token = localStorage.getItem("token");
-export const tokenRole = {
-  headers: {
-    Authorization: `Bearer ${token}`,
-  },
-};
+import { useAuth } from "./AuthContext";
+
 const JadwalProduksiContext = createContext();
 
 export const JadwalProduksiProvider = ({ children }) => {
+  const { user, authToken } = useAuth();
   const [jadwalProduksi, setJadwalProduksi] = useState([]);
   const [loading, setLoading] = useState(false);
   const { fetchPesanan } = usePesanan();
 
+  const getTokenRole = () => ({
+    headers: {
+      Authorization: `Bearer ${authToken}`, // Gunakan authToken dari konteks
+    },
+  });
+
   const fetchJadwalProduksiByPrioritas = async () => {
+    if (!authToken) return;
+
     setLoading(true);
     try {
-      const response = await axios.get(`${api}/jadwal/prioritas`, tokenRole);
+      const response = await axios.get(
+        `${api}/jadwal/prioritas`,
+        getTokenRole()
+      );
       setJadwalProduksi(response.data.jadwalProduksi || []);
     } catch (error) {
       toast.error("Failed to fetch jadwal produksi");
@@ -30,7 +38,7 @@ export const JadwalProduksiProvider = ({ children }) => {
 
   const createSPK = async (newSPK) => {
     try {
-      await axios.post(`${api}/jadwal/spk`, newSPK, tokenRole);
+      await axios.post(`${api}/jadwal/spk`, newSPK, getTokenRole());
       toast.success("SPK created successfully");
       fetchJadwalProduksiByPrioritas();
       fetchPesanan();
@@ -42,7 +50,7 @@ export const JadwalProduksiProvider = ({ children }) => {
 
   const updateJadwalProduksi = async (id, updatedData) => {
     try {
-      await axios.put(`${api}/jadwal/${id}`, updatedData, tokenRole);
+      await axios.put(`${api}/jadwal/${id}`, updatedData, getTokenRole());
       toast.success("Jadwal Produksi updated successfully");
       fetchJadwalProduksiByPrioritas();
     } catch (error) {
@@ -52,7 +60,7 @@ export const JadwalProduksiProvider = ({ children }) => {
 
   useEffect(() => {
     fetchJadwalProduksiByPrioritas();
-  }, []);
+  }, [user, authToken]);
 
   return (
     <JadwalProduksiContext.Provider

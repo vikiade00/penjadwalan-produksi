@@ -46,73 +46,57 @@ import {
 } from "@/components/ui/pagination";
 
 function FinishedSpkTable() {
-  const { spk, fetchSpk, updateSPKStatus, loading } = useSpk();
-  const [newStatus, setNewStatus] = useState("");
-  const [isStatusDialogOpen, setIsStatusDialogOpen] = useState(false);
-  const [isConfirmDialogOpen, setIsConfirmDialogOpen] = useState(false);
+  const { spk, fetchSpk, loading } = useSpk();
   const [globalFilter, setGlobalFilter] = useState("");
   const [pagination, setPagination] = useState({
     pageIndex: 0,
     pageSize: 5,
   });
 
-  const handlePageSizeChange = (event) => {
-    const newPageSize = Number(event.target.value);
-    setPagination((prev) => ({
-      ...prev,
-      pageSize: newPageSize,
-      pageIndex: 0,
-    }));
-  };
-
   useEffect(() => {
-    const loadSPK = async () => {
-      try {
-        await fetchSpk();
-      } catch (error) {
-        console.error("Failed to fetch SPK data:", error);
-      }
-    };
-
-    loadSPK();
+    fetchSpk();
   }, [fetchSpk]);
 
-  const columns = useMemo(() => [
-    {
-      accessorFn: (row) => row.kode_spk || "",
-      header: "Kode SPK",
-    },
-    {
-      accessorFn: (row) => row.id_pesanan?.kode_pesanan || "",
-      header: "Kode Pesanan",
-    },
-    {
-      accessorFn: (row) => row.id_pesanan?.nama_customer || "",
-      header: "Nama Customer",
-    },
-    {
-      accessorFn: (row) => row.id_pesanan?.nama_produk || "",
-      header: "Nama Produk",
-    },
-    {
-      accessorFn: (row) =>
-        dayjs(row.id_pesanan?.tanggal_tenggat).format("DD/MM/YYYY") || "",
-      header: "Tanggal Tenggat",
-    },
-    {
-      accessorFn: (row) => row.id_pesanan?.jumlah_produksi + "/Pcs" || "",
-      header: "Jumlah Produksi",
-    },
-    {
-      accessorFn: (row) => dayjs(row.tanggal_spk).format("DD/MM/YYYY") || "",
-      header: "Tanggal Pengerjaan",
-    },
-    {
-      accessorFn: (row) => row.status || "",
-      header: "Status",
-      cell: ({ row }) => <BadgeStatus status={row.original.status} />,
-    },
-  ]);
+  const columns = useMemo(
+    () => [
+      {
+        accessorFn: (row) => row.kode_spk || "",
+        header: "Kode SPK",
+      },
+      {
+        accessorFn: (row) => row.id_pesanan?.kode_pesanan || "",
+        header: "Kode Pesanan",
+      },
+      {
+        accessorFn: (row) => row.id_pesanan?.nama_customer || "",
+        header: "Nama Customer",
+      },
+      {
+        accessorFn: (row) => row.id_pesanan?.nama_produk || "",
+        header: "Nama Produk",
+      },
+      {
+        accessorFn: (row) =>
+          dayjs(row.id_pesanan?.tanggal_tenggat).format("DD/MM/YYYY") || "",
+        header: "Tanggal Tenggat",
+      },
+      {
+        accessorFn: (row) => row.id_pesanan?.jumlah_produksi + "/Pcs" || "",
+        header: "Jumlah Produksi",
+      },
+      {
+        accessorFn: (row) => dayjs(row.tanggal_spk).format("DD/MM/YYYY") || "",
+        header: "Tanggal Pengerjaan",
+      },
+      {
+        accessorFn: (row) => row.status || "",
+        header: "Status",
+        cell: ({ row }) => <BadgeStatus status={row.original.status} />,
+      },
+    ],
+    []
+  );
+
   const finishedSpk = spk.filter(
     (item) =>
       item.status === "Selesai" ||
@@ -134,6 +118,15 @@ function FinishedSpkTable() {
     getFilteredRowModel: getFilteredRowModel(),
     autoResetPageIndex: false,
   });
+
+  const handlePageSizeChange = (event) => {
+    const newPageSize = Number(event.target.value);
+    setPagination((prev) => ({
+      ...prev,
+      pageSize: newPageSize,
+      pageIndex: 0,
+    }));
+  };
 
   return (
     <div>
@@ -189,7 +182,7 @@ function FinishedSpkTable() {
             onChange={handlePageSizeChange}
             className="border rounded p-1"
           >
-            {[5, 10, 15, 20].map((size) => (
+            {[5, 10, 20].map((size) => (
               <option key={size} value={size}>
                 {size}
               </option>
@@ -198,15 +191,17 @@ function FinishedSpkTable() {
         </div>
         <PaginationContent>
           <PaginationPrevious
-            className="cursor-pointer"
-            onClick={() => table.previousPage()}
+            onClick={() =>
+              table.setPageIndex(table.getState().pagination.pageIndex - 1)
+            }
             disabled={!table.getCanPreviousPage()}
           >
             Previous
           </PaginationPrevious>
           <PaginationNext
-            className="cursor-pointer"
-            onClick={() => table.nextPage()}
+            onClick={() =>
+              table.setPageIndex(table.getState().pagination.pageIndex + 1)
+            }
             disabled={!table.getCanNextPage()}
           >
             Next

@@ -212,8 +212,8 @@ function Customer() {
         />
         <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
           {user.role === "admin" && (
-            <DialogTrigger>
-              <Button
+            <Button>
+              <a
                 onClick={() => {
                   setDialogMode("add");
                   setNewCustomer({
@@ -227,8 +227,8 @@ function Customer() {
                 }}
               >
                 Tambah
-              </Button>
-            </DialogTrigger>
+              </a>
+            </Button>
           )}
           <DialogContent>
             {dialogMode === "add" ? (

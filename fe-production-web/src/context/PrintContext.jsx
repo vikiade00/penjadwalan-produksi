@@ -2,18 +2,19 @@ import React, { createContext, useState, useContext } from "react";
 import axios from "axios";
 import toast from "react-hot-toast";
 import api from "@/api/api";
-
-const token = localStorage.getItem("token");
-export const tokenRole = {
-  headers: {
-    Authorization: `Bearer ${token}`,
-  },
-};
+import { useAuth } from "./AuthContext";
 
 const PrintContext = createContext();
 
 export const PrintProvider = ({ children }) => {
+  const { tokenRole } = useAuth();
   const [loading, setLoading] = useState(false);
+
+  const getTokenRole = () => ({
+    headers: {
+      Authorization: `Bearer ${authToken}`, // Gunakan authToken dari konteks
+    },
+  });
 
   const cetak = async (type, params = {}) => {
     setLoading(true);
@@ -22,7 +23,7 @@ export const PrintProvider = ({ children }) => {
       if (Object.keys(params).length > 0) {
         url += `?${new URLSearchParams(params).toString()}`;
       }
-      const response = await axios.get(url, tokenRole, {
+      const response = await axios.get(url, getTokenRole(), {
         responseType: "json",
       });
       const data = response.data;

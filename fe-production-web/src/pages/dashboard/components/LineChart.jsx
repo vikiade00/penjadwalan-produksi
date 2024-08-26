@@ -1,9 +1,17 @@
 import api from "@/api/api";
-import { tokenRole } from "@/utils/constant";
+import { useAuth } from "@/context/AuthContext";
 import React, { useEffect, useState } from "react";
 import ReactApexChart from "react-apexcharts";
 
 const LineChart = ({ startDate, endDate, granularity }) => {
+  const { authToken } = useAuth();
+
+  const getTokenRole = () => ({
+    headers: {
+      Authorization: `Bearer ${authToken}`, // Gunakan authToken dari konteks
+    },
+  });
+
   const [chartData, setChartData] = useState({
     series: [],
     options: {
@@ -31,6 +39,8 @@ const LineChart = ({ startDate, endDate, granularity }) => {
   });
 
   useEffect(() => {
+    if (!authToken) return;
+
     const fetchChartData = async () => {
       // Validasi input, jika tidak ada startDate atau endDate, hentikan fetch
       if (!startDate || !endDate || !granularity) return;
@@ -38,7 +48,7 @@ const LineChart = ({ startDate, endDate, granularity }) => {
       try {
         const response = await fetch(
           `${api}/jadwal/grafik-produksi/periode?startDate=${startDate}&endDate=${endDate}&granularity=${granularity}`,
-          tokenRole
+          getTokenRole()
         );
         const data = await response.json();
 
@@ -80,7 +90,7 @@ const LineChart = ({ startDate, endDate, granularity }) => {
     };
 
     fetchChartData();
-  }, [startDate, endDate, granularity]);
+  }, [authToken, startDate, endDate, granularity]);
 
   return (
     <div>

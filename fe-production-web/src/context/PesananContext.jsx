@@ -2,26 +2,29 @@ import React, { createContext, useContext, useState, useEffect } from "react";
 import axios from "axios";
 import { toast } from "react-hot-toast";
 import api from "@/api/api";
-
-const token = localStorage.getItem("token");
-export const tokenRole = {
-  headers: {
-    Authorization: `Bearer ${token}`,
-  },
-};
+import { useAuth } from "./AuthContext";
 
 const PesananContext = createContext();
 
 export const PesananProvider = ({ children }) => {
+  const { user, authToken } = useAuth();
   const [pesanan, setPesanan] = useState([]);
   const [customers, setCustomers] = useState([]);
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(false);
 
+  const getTokenRole = () => ({
+    headers: {
+      Authorization: `Bearer ${authToken}`, // Gunakan authToken dari konteks
+    },
+  });
+
   const fetchPesanan = async () => {
+    if (!authToken) return;
+
     setLoading(true);
     try {
-      const response = await axios.get(`${api}/pesanan`, tokenRole);
+      const response = await axios.get(`${api}/pesanan`, getTokenRole());
       setPesanan(response.data.pesanan);
     } catch (error) {
       toast.error("Gagal memuat pesanan");
@@ -32,8 +35,10 @@ export const PesananProvider = ({ children }) => {
   };
 
   const fetchCustomers = async () => {
+    if (!authToken) return;
+
     try {
-      const response = await axios.get(`${api}/customers`, tokenRole);
+      const response = await axios.get(`${api}/customers`, getTokenRole());
       setCustomers(response.data);
     } catch (error) {
       toast.error("Gagal memuat customer");
@@ -44,7 +49,11 @@ export const PesananProvider = ({ children }) => {
   const addPesanan = async (pesanan) => {
     setLoading(true);
     try {
-      const response = await axios.post(`${api}/pesanan`, pesanan, tokenRole);
+      const response = await axios.post(
+        `${api}/pesanan`,
+        pesanan,
+        getTokenRole()
+      );
       setPesanan((prevPesanan) => [...prevPesanan, response.data]);
       toast.success("Pesanan berhasil ditambahkan");
     } catch (error) {
@@ -61,7 +70,7 @@ export const PesananProvider = ({ children }) => {
       const response = await axios.put(
         `${api}/pesanan/${id}`,
         updatedPesanan,
-        tokenRole
+        getTokenRole()
       );
       setPesanan((prevPesanan) =>
         prevPesanan.map((pesanan) =>
@@ -79,7 +88,7 @@ export const PesananProvider = ({ children }) => {
   const removePesanan = async (id) => {
     setLoading(true);
     try {
-      await axios.delete(`${api}/pesanan/${id}`, tokenRole);
+      await axios.delete(`${api}/pesanan/${id}`, getTokenRole());
       setPesanan((prevPesanan) =>
         prevPesanan.filter((pesanan) => pesanan._id !== id)
       );
@@ -95,7 +104,7 @@ export const PesananProvider = ({ children }) => {
   useEffect(() => {
     fetchCustomers();
     fetchPesanan();
-  }, []);
+  }, [user, authToken]);
 
   return (
     <PesananContext.Provider

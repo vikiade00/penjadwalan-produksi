@@ -2,24 +2,27 @@ import React, { createContext, useContext, useState, useEffect } from "react";
 import axios from "axios";
 import { toast } from "react-hot-toast";
 import api from "@/api/api";
-
-const token = localStorage.getItem("token");
-export const tokenRole = {
-  headers: {
-    Authorization: `Bearer ${token}`,
-  },
-};
+import { useAuth } from "./AuthContext";
 
 const CustomerContext = createContext();
 
 export const CustomerProvider = ({ children }) => {
+  const { user, authToken } = useAuth();
   const [customers, setCustomers] = useState([]);
   const [loading, setLoading] = useState(false);
 
+  const getTokenRole = () => ({
+    headers: {
+      Authorization: `Bearer ${authToken}`, // Gunakan authToken dari konteks
+    },
+  });
+
   const fetchCustomers = async () => {
+    if (!authToken) return;
+
     setLoading(true);
     try {
-      const response = await axios.get(`${api}/customers`, tokenRole);
+      const response = await axios.get(`${api}/customers`, getTokenRole());
       setCustomers(response.data);
     } catch (error) {
       toast.error("Failed to fetch customers");
@@ -34,7 +37,7 @@ export const CustomerProvider = ({ children }) => {
       const response = await axios.post(
         `${api}/customers`,
         customer,
-        tokenRole
+        getTokenRole()
       );
       setCustomers((prevCustomers) => [...prevCustomers, response.data]);
       toast.success("Customer added successfully");
@@ -53,7 +56,7 @@ export const CustomerProvider = ({ children }) => {
       const response = await axios.put(
         `${api}/customers/${id}`,
         updatedCustomer,
-        tokenRole
+        getTokenRole()
       );
       setCustomers((prevCustomers) =>
         prevCustomers.map((customer) =>
@@ -72,7 +75,7 @@ export const CustomerProvider = ({ children }) => {
   const removeCustomer = async (id) => {
     setLoading(true);
     try {
-      await axios.delete(`${api}/customers/${id}`, tokenRole);
+      await axios.delete(`${api}/customers/${id}`, getTokenRole());
       setCustomers((prevCustomers) =>
         prevCustomers.filter((customer) => customer._id !== id)
       );
@@ -87,7 +90,7 @@ export const CustomerProvider = ({ children }) => {
 
   useEffect(() => {
     fetchCustomers();
-  }, []);
+  }, [user, authToken]);
 
   return (
     <CustomerContext.Provider

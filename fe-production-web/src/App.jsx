@@ -10,8 +10,8 @@ import MainRoute from "./routes/MainRoute";
 function App() {
   return (
     <>
-      <PrintProvider>
-        <AuthProvider>
+      <AuthProvider>
+        <PrintProvider>
           <UserProvider>
             <PesananProvider>
               <SpkProvider>
@@ -23,8 +23,8 @@ function App() {
               </SpkProvider>
             </PesananProvider>
           </UserProvider>
-        </AuthProvider>
-      </PrintProvider>
+        </PrintProvider>
+      </AuthProvider>
     </>
   );
 }

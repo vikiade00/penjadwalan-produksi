@@ -278,8 +278,8 @@ function Pesanan() {
         />
         <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
           {user.role === "admin" && (
-            <DialogTrigger>
-              <Button
+            <Button>
+              <a
                 onClick={() => {
                   setDialogMode("add");
                   setNewPesanan({
@@ -294,8 +294,8 @@ function Pesanan() {
                 }}
               >
                 Tambah
-              </Button>
-            </DialogTrigger>
+              </a>
+            </Button>
           )}
           <DialogContent>
             <DialogHeader>

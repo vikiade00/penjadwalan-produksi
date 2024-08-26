@@ -2,24 +2,27 @@ import React, { createContext, useContext, useState, useEffect } from "react";
 import axios from "axios";
 import { toast } from "react-hot-toast";
 import api from "@/api/api";
-
-const token = localStorage.getItem("token");
-export const tokenRole = {
-  headers: {
-    Authorization: `Bearer ${token}`,
-  },
-};
+import { useAuth } from "./AuthContext";
 
 const UserContext = createContext();
 
 export const UserProvider = ({ children }) => {
+  const { user, authToken } = useAuth();
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(false);
 
+  const getTokenRole = () => ({
+    headers: {
+      Authorization: `Bearer ${authToken}`, // Gunakan authToken dari konteks
+    },
+  });
+
   const fetchUsers = async () => {
+    if (!authToken) return;
+
     setLoading(true);
     try {
-      const response = await axios.get(`${api}/users`, tokenRole);
+      const response = await axios.get(`${api}/users`, getTokenRole());
       setUsers(response.data);
     } catch (error) {
       toast.error("Gagal mengambil data pengguna");
@@ -31,7 +34,7 @@ export const UserProvider = ({ children }) => {
   const addUser = async (user) => {
     setLoading(true);
     try {
-      const response = await axios.post(`${api}/users`, user, tokenRole);
+      const response = await axios.post(`${api}/users`, user, getTokenRole());
       setUsers((prevUsers) => [...prevUsers, response.data]);
       toast.success("Pengguna berhasil ditambahkan");
       fetchUsers();
@@ -49,7 +52,7 @@ export const UserProvider = ({ children }) => {
       const response = await axios.put(
         `${api}/users/${id}`,
         updatedUser,
-        tokenRole
+        getTokenRole()
       );
       setUsers((prevUsers) =>
         prevUsers.map((user) => (user._id === id ? response.data : user))
@@ -66,7 +69,7 @@ export const UserProvider = ({ children }) => {
   const removeUser = async (id) => {
     setLoading(true);
     try {
-      await axios.delete(`${api}/users/${id}`, tokenRole);
+      await axios.delete(`${api}/users/${id}`, getTokenRole());
       setUsers((prevUsers) => prevUsers.filter((user) => user._id !== id));
       toast.success("Pengguna berhasil dihapus");
       fetchUsers();
@@ -82,7 +85,7 @@ export const UserProvider = ({ children }) => {
     if (userRole === "pemilik") {
       fetchUsers();
     }
-  }, []);
+  }, [user, authToken]);
 
   return (
     <UserContext.Provider
