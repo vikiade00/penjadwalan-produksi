@@ -7,7 +7,7 @@ import { useAuth } from "./AuthContext";
 const PrintContext = createContext();
 
 export const PrintProvider = ({ children }) => {
-  const { tokenRole } = useAuth();
+  const { authToken } = useAuth();
   const [loading, setLoading] = useState(false);
 
   const getTokenRole = () => ({
