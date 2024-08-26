@@ -7,11 +7,18 @@ import { Toaster } from "react-hot-toast";
 import logo from "../assets/img/logo-hitam-tanpa-nama.png";
 import { useNavigate } from "react-router-dom";
 import { IMAGES } from "@/assets/img/constant";
+import {
+  Dialog,
+  DialogContent,
+  DialogTitle,
+  DialogDescription,
+} from "@/components/ui/dialog";
 
 function Login() {
   const { login, loading } = useAuth();
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
   const navigate = useNavigate();
 
   const handleLogin = async (e) => {
@@ -78,8 +85,38 @@ function Login() {
               Login
             </Button>
           </form>
+          <Button
+            variant="link"
+            className="mt-4"
+            onClick={() => setIsDialogOpen(true)}
+          >
+            Lihat Akun Demo
+          </Button>
         </div>
       </div>
+      <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+        <DialogContent>
+          <DialogTitle>Akun Demo</DialogTitle>
+          <DialogDescription>
+            Berikut adalah akun demo yang dapat Anda gunakan:
+            <ul className="mt-4">
+              <li>
+                <strong>Admin:</strong> <br /> Username : admin | Password :
+                admin123
+              </li>
+              <li>
+                <strong>Produksi:</strong> <br /> Username : produksi | Password
+                : produksi123
+              </li>
+              <li>
+                <strong>Pemilik:</strong> <br /> Username : tumini00 | Password
+                : tumini123
+              </li>
+            </ul>
+          </DialogDescription>
+          <Button onClick={() => setIsDialogOpen(false)}>Tutup</Button>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
