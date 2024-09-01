@@ -36,7 +36,6 @@ export const SpkProvider = ({ children }) => {
       const response = await axios.get(`${api}/spk`, getTokenRole());
       setSpk(response.data.spkList || []);
     } catch (error) {
-      toast.error("Failed to fetch SPK");
       console.log(error);
     } finally {
       setLoading(false);
@@ -73,7 +72,8 @@ export const SpkProvider = ({ children }) => {
         );
 
         toast.success("SPK status updated successfully");
-        await fetchPesanan(); // Optionally refresh Pesanan data
+        await fetchPesanan();
+        await fetchSpk();
       } catch (error) {
         toast.error("Failed to update SPK status");
         console.log(error);

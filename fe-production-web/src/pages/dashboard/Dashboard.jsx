@@ -66,7 +66,7 @@ function Dashboard() {
         <div className="mb-5">
           <div className="text-xl font-bold">Grafik Produksi</div>
         </div>
-        <div className="flex gap-5 items-center">
+        <div className="flex gap-5 flex-col sm:flex-row sm:items-center">
           <DateTimePicker onDateChange={handleDateChange} />
           <div>
             <select

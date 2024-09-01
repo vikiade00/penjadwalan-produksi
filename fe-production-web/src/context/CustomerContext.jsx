@@ -25,7 +25,7 @@ export const CustomerProvider = ({ children }) => {
       const response = await axios.get(`${api}/customers`, getTokenRole());
       setCustomers(response.data);
     } catch (error) {
-      toast.error("Failed to fetch customers");
+      console.log(error);
     } finally {
       setLoading(false);
     }

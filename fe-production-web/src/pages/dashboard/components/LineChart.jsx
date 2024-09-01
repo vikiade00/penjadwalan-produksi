@@ -93,7 +93,7 @@ const LineChart = ({ startDate, endDate, granularity }) => {
   }, [authToken, startDate, endDate, granularity]);
 
   return (
-    <div>
+    <div className="">
       <ReactApexChart
         options={chartData.options}
         series={chartData.series}

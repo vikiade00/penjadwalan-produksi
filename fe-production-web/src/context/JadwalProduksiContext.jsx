@@ -30,7 +30,7 @@ export const JadwalProduksiProvider = ({ children }) => {
       );
       setJadwalProduksi(response.data.jadwalProduksi || []);
     } catch (error) {
-      toast.error("Failed to fetch jadwal produksi");
+      console.log(error);
     } finally {
       setLoading(false);
     }

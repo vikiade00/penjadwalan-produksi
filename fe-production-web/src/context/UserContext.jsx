@@ -25,7 +25,7 @@ export const UserProvider = ({ children }) => {
       const response = await axios.get(`${api}/users`, getTokenRole());
       setUsers(response.data);
     } catch (error) {
-      toast.error("Gagal mengambil data pengguna");
+      console.log(error);
     } finally {
       setLoading(false);
     }

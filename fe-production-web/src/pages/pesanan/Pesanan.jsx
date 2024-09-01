@@ -151,18 +151,26 @@ function Pesanan() {
         id: "action",
         header: "Action",
         cell: ({ row }) => {
-          const { user } = useAuth(); // Mengambil user dari AuthContext
+          const { user } = useAuth();
+          const status = row.original.status_pesanan;
 
+          // Periksa apakah status pesanan adalah "Selesai" atau "Telat"
+          const isEditDisabled =
+            status === "Selesai" ||
+            status === "Telat" ||
+            status === "Dibatalkan";
           // Periksa apakah pengguna memiliki role "admin"
           if (user && user.role === "admin") {
             return (
               <div className="flex">
-                <Button
-                  className="mr-2 bg-yellow-400"
-                  onClick={() => handleEditClick(row.original)}
-                >
-                  Edit
-                </Button>
+                {!isEditDisabled && (
+                  <Button
+                    className="mr-2 bg-yellow-400"
+                    onClick={() => handleEditClick(row.original)}
+                  >
+                    Edit
+                  </Button>
+                )}
                 <Button
                   className="bg-red-500"
                   onClick={() => handleDeleteClick(row.original)}
@@ -173,7 +181,6 @@ function Pesanan() {
             );
           }
 
-          // Jika bukan admin, jangan tampilkan apapun atau bisa tampilkan elemen kosong
           return null;
         },
       },

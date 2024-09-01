@@ -27,7 +27,6 @@ export const PesananProvider = ({ children }) => {
       const response = await axios.get(`${api}/pesanan`, getTokenRole());
       setPesanan(response.data.pesanan);
     } catch (error) {
-      toast.error("Gagal memuat pesanan");
       console.error("Error fetching pesanan:", error);
     } finally {
       setLoading(false);
@@ -41,7 +40,6 @@ export const PesananProvider = ({ children }) => {
       const response = await axios.get(`${api}/customers`, getTokenRole());
       setCustomers(response.data);
     } catch (error) {
-      toast.error("Gagal memuat customer");
       console.error("Error fetching customers:", error);
     }
   };
