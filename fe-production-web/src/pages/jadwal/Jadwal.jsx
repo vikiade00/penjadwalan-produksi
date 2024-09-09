@@ -84,16 +84,16 @@ function JadwalProduksi() {
         accessorFn: (row) => row.pesanan?.kode_pesanan || "",
         header: "Kode Pesanan",
       },
-      {
-        accessorFn: (row) => row.pesanan?.id_customer?.nama || "",
-        header: "Nama Customer",
-      },
+      // {
+      //   accessorFn: (row) => row.pesanan?.id_customer?.nama || "",
+      //   header: "Nama Customer",
+      // },
       {
         accessorFn: (row) => row.pesanan?.nama_produk || "",
         header: "Nama Produk",
       },
       {
-        accessorFn: (row) => row.pesanan?.jumlah_produksi + "/Pcs" || "",
+        accessorFn: (row) => row?.jumlah_produksi + "/Pcs" || "",
         header: "Jumlah Produk",
       },
       {
@@ -129,7 +129,13 @@ function JadwalProduksi() {
         accessorFn: (row) => row.pesanan?.prioritas_pesanan || "Tidak Ada",
         cell: (info) => <BadgePrioritas prioritas={info.getValue()} />,
       },
-
+      {
+        accessorFn: (row) =>
+          row.pesanan?.nilai_prioritas
+            ? row.pesanan.nilai_prioritas.toFixed(2)
+            : "",
+        header: "Skor",
+      },
       {
         accessorKey: "keterangan",
         header: "Keterangan",
@@ -254,6 +260,15 @@ function JadwalProduksi() {
                     onChange={handleSPKInputChange}
                     required
                   />
+                  {/* <Label htmlFor="keterangan">Masukan Jumlah Produksi</Label>
+                  <Input
+                    id="keterangan"
+                    type="text"
+                    name="keterangan"
+                    value={newSPK.keterangan}
+                    onChange={handleSPKInputChange}
+                    required
+                  /> */}
                   <Label htmlFor="keterangan">Keterangan</Label>
                   <Input
                     id="keterangan"

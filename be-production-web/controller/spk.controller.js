@@ -111,7 +111,6 @@ exports.getAllSPK = async (req, res) => {
               nama_customer: id_pesanan.id_customer?.nama || "Tidak ada",
               nama_produk: id_pesanan.nama_produk || "Tidak ada",
               tanggal_tenggat: id_pesanan.tanggal_tenggat,
-              jumlah_produksi: id_pesanan.jumlah_produksi,
               prioritas_pesanan: id_pesanan.prioritas_pesanan,
             }
           : null,
@@ -120,6 +119,7 @@ exports.getAllSPK = async (req, res) => {
               _id: id_jadwal_produksi._id,
               tanggal_mulai: id_jadwal_produksi.tanggal_mulai,
               tanggal_selesai: id_jadwal_produksi.tanggal_selesai,
+              jumlah_produksi: id_jadwal_produksi.jumlah_produksi,
               status: id_jadwal_produksi.status,
               keterangan: id_jadwal_produksi.keterangan,
             }

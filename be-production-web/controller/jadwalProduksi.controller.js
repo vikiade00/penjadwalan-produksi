@@ -62,33 +62,25 @@ exports.getJadwalProduksiByPrioritas = async (req, res) => {
     const jadwalProduksi = await JadwalProduksi.aggregate([
       {
         $lookup: {
-          from: "pesanans", // Nama koleksi pesanan
+          from: "pesanans", // Gabungkan koleksi pesanan untuk mengambil informasi pesanan terkait
           localField: "id_pesanan",
           foreignField: "_id",
           as: "pesanan",
         },
       },
-      { $unwind: "$pesanan" }, // Membuka array hasil lookup
-      {
-        $lookup: {
-          from: "customers", // Nama koleksi customer
-          localField: "pesanan.id_customer",
-          foreignField: "_id",
-          as: "pesanan.id_customer",
-        },
-      },
-      { $unwind: "$pesanan.id_customer" }, // Membuka array hasil lookup
+      { $unwind: "$pesanan" }, // Mengurai hasil lookup
       {
         $match: {
           "pesanan.status_pesanan": {
-            $nin: ["Selesai", "Telat", "Dibatalkan"],
-          }, // Hanya ambil pesanan yang statusnya bukan "Selesai"
+            $nin: ["Selesai", "Telat", "Dibatalkan"], // Hanya pesanan yang masih aktif
+          },
         },
       },
       {
         $sort: {
-          "pesanan.prioritas_pesanan": -1, // Prioritas yang lebih tinggi diutamakan (Descending order)
-          "pesanan.tanggal_tenggat": 1, // Tanggal tenggat terdekat diutamakan
+          "pesanan.prioritas_pesanan": -1, // Urutkan berdasarkan urgensi (prioritas_pesanan)
+          "pesanan.nilai_prioritas": -1, // Kemudian berdasarkan nilai prioritas
+          "pesanan.tanggal_tenggat": 1, // Jika sama, urutkan berdasarkan tanggal tenggat lebih awal
         },
       },
     ]);

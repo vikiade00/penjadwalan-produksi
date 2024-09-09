@@ -15,6 +15,7 @@ const jadwalProduksiSchema = new mongoose.Schema(
       type: Date,
       default: null,
     },
+    jumlah_produksi: { type: Number, required: true },
     status: {
       type: String,
       enum: [
@@ -31,7 +32,9 @@ const jadwalProduksiSchema = new mongoose.Schema(
       type: String,
       default: "",
     },
+    bagian_ke: { type: Number },
   },
+
   { timestamps: true }
 );
 

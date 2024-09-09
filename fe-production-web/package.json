@@ -17,6 +17,7 @@
     "@radix-ui/react-popover": "^1.1.1",
     "@radix-ui/react-select": "^2.1.1",
     "@radix-ui/react-slot": "^1.1.0",
+    "@syncfusion/ej2-react-schedule": "^26.2.12",
     "@tanstack/react-table": "^8.20.1",
     "apexcharts": "^3.52.0",
     "axios": "^1.7.2",

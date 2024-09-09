@@ -69,6 +69,8 @@ function Pesanan() {
     tanggal_pesanan: "",
     tanggal_tenggat: "",
     jumlah_produksi: "",
+    kompleksitas_produk: "", // Added complexity field
+    prioritas_pesanan: "",
     keterangan: "",
   });
 
@@ -134,6 +136,10 @@ function Pesanan() {
       {
         cell: ({ row }) => row.original.jumlah_produksi + "/Pcs",
         header: "Jumlah Produksi",
+      },
+      {
+        accessorKey: "kompleksitas_produk",
+        header: "Kompleksitas Produk",
       },
       {
         accessorKey: "status_pesanan",
@@ -237,6 +243,8 @@ function Pesanan() {
         tanggal_pesanan: "",
         tanggal_tenggat: "",
         jumlah_produksi: "",
+        kompleksitas_produk: "", // Added complexity field
+        prioritas_pesanan: "",
         keterangan: "",
       });
     } catch (error) {
@@ -254,6 +262,8 @@ function Pesanan() {
       tanggal_pesanan: dayjs(pesanan.tanggal_pesanan).format("YYYY-MM-DD"),
       tanggal_tenggat: dayjs(pesanan.tanggal_tenggat).format("YYYY-MM-DD"),
       jumlah_produksi: pesanan.jumlah_produksi,
+      kompleksitas_produk: pesanan.kompleksitas_produk,
+      prioritas_pesanan: pesanan.prioritas_pesanan,
       keterangan: pesanan.keterangan,
     });
     setDialogMode("edit");
@@ -295,6 +305,8 @@ function Pesanan() {
                     tanggal_pesanan: "",
                     tanggal_tenggat: "",
                     jumlah_produksi: "",
+                    kompleksitas_produk: "",
+                    prioritas_pesanan: "",
                     keterangan: "",
                   });
                   setIsDialogOpen(true);
@@ -367,6 +379,26 @@ function Pesanan() {
                     type="number"
                     name="jumlah_produksi"
                     value={newPesanan.jumlah_produksi}
+                    onChange={handleInputChange}
+                    required
+                  />
+                  <Label htmlFor="kompleksitas_produk">
+                    Kompleksitas Produk
+                  </Label>
+                  <Input
+                    id="kompleksitas_produk"
+                    type="number"
+                    name="kompleksitas_produk"
+                    value={newPesanan.kompleksitas_produk}
+                    onChange={handleInputChange}
+                    required
+                  />
+                  <Label htmlFor="prioritas_pesanan">Prioritas Pesanan</Label>
+                  <Input
+                    id="prioritas_pesanan"
+                    type="number"
+                    name="prioritas_pesanan"
+                    value={newPesanan.prioritas_pesanan}
                     onChange={handleInputChange}
                     required
                   />

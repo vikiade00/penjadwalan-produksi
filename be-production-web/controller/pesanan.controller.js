@@ -2,27 +2,62 @@ const Pesanan = require("../models/pesanan");
 const JadwalProduksi = require("../models/jadwalProduksi");
 const mongoose = require("mongoose");
 const { SPK } = require("../models/spk");
+const dayjs = require("dayjs"); // Untuk manipulasi tanggal
+
+// Kapasitas produksi per hari
+const KAPASITAS_PER_HARI = 100;
 
 // Validasi apakah id valid
 const isValidObjectId = (id) => mongoose.Types.ObjectId.isValid(id);
 
-// Fungsi untuk menghitung prioritas ROBS
-const calculateROBSPriority = (tanggal_pesanan, tanggal_tenggat) => {
-  const now = new Date();
-  const waktu_pesanan = new Date(tanggal_pesanan);
-  const tenggat_waktu = new Date(tanggal_tenggat);
+// Fungsi untuk menghitung estimasi selesai berdasarkan kapasitas produksi dan kompleksitas produk
+const calculateEstimatedCompletion = (
+  tanggal_mulai,
+  jumlah_produksi,
+  kompleksitas_produk
+) => {
+  const faktor_kompleksitas = kompleksitas_produk; // Misalnya, 1 hari tambahan per level kompleksitas
+  const hari_estimasi =
+    Math.ceil(jumlah_produksi / KAPASITAS_PER_HARI) + faktor_kompleksitas; // Menghitung jumlah hari
+  return dayjs(tanggal_mulai).add(hari_estimasi, "day").toDate(); // Menambahkan jumlah hari ke tanggal mulai
+};
 
-  const jarak_waktu = (tenggat_waktu - now) / (1000 * 60 * 60 * 24); // Jarak waktu dalam hari
-  const waktu_pesanan_diff =
-    (tenggat_waktu - waktu_pesanan) / (1000 * 60 * 60 * 24); // Jarak waktu pesanan
+// Bobot prioritas
+const WEIGHT_URGENT = 0.4; // Bobot urgensi
+const WEIGHT_COMPLEXITY = 0.2; // Bobot kompleksitas
+const WEIGHT_DEADLINE = 0.3; // Bobot tenggat waktu
+const WEIGHT_ORDER_SIZE = 0.1; // Bobot ukuran pesanan
 
-  if (jarak_waktu <= 5) {
-    return "Tinggi"; // Prioritas tinggi jika tenggat kurang dari 1 hari
-  } else if (waktu_pesanan_diff < 10) {
-    return "Sedang"; // Prioritas sedang jika pesanan dalam 5 hari terakhir
-  } else {
-    return "Rendah"; // Prioritas rendah jika lebih dari 5 hari
-  }
+// Fungsi untuk menghitung skor tenggat waktu
+const calculateDeadlineScore = (tanggal_tenggat) => {
+  const daysUntilDueDate = dayjs(tanggal_tenggat).diff(dayjs(), "day");
+  return daysUntilDueDate > 0 ? 1 / daysUntilDueDate : 1; // Invers dari sisa waktu
+};
+
+// Fungsi untuk menghitung skor prioritas berdasarkan rumus
+const calculatePriorityScore = (urgency, complexity, deadline, orderSize) => {
+  return (
+    WEIGHT_URGENT * urgency +
+    WEIGHT_COMPLEXITY * complexity +
+    WEIGHT_DEADLINE * deadline +
+    WEIGHT_ORDER_SIZE * orderSize
+  );
+};
+
+// Fungsi untuk membuat jadwal produksi otomatis berdasarkan jumlah produksi
+const createProductionSchedule = async (pesanan) => {
+  const jadwalProduksi = new JadwalProduksi({
+    id_pesanan: pesanan._id,
+    jumlah_produksi: pesanan.jumlah_produksi, // Seluruh jumlah produksi
+    tanggal_mulai: null, // Tanggal mulai diatur kemudian
+    tanggal_selesai: null, // Tanggal selesai diatur kemudian
+    status: "Menunggu",
+    keterangan: pesanan.keterangan,
+  });
+
+  await jadwalProduksi.save();
+
+  return jadwalProduksi;
 };
 
 // Create a new pesanan
@@ -34,6 +69,8 @@ exports.createPesanan = async (req, res) => {
       tanggal_pesanan,
       tanggal_tenggat,
       jumlah_produksi,
+      prioritas_pesanan, // Menggunakan prioritas_pesanan sebagai urgensi_pelanggan
+      kompleksitas_produk, // Menambahkan kompleksitas produk
       keterangan,
     } = req.body;
 
@@ -44,10 +81,25 @@ exports.createPesanan = async (req, res) => {
       });
     }
 
-    // Hitung prioritas pesanan menggunakan model ROBS
-    const prioritas_pesanan = calculateROBSPriority(
-      tanggal_pesanan,
-      tanggal_tenggat
+    // Set tanggal mulai produksi sebagai tanggal pesanan untuk contoh ini
+    const tanggal_mulai_produksi = new Date();
+
+    // Hitung tanggal estimasi selesai berdasarkan jumlah produksi dan kompleksitas produk
+    const tanggal_estimasi_selesai = calculateEstimatedCompletion(
+      tanggal_mulai_produksi,
+      jumlah_produksi,
+      kompleksitas_produk
+    );
+
+    // Hitung skor deadline (invers dari sisa waktu)
+    const deadlineScore = calculateDeadlineScore(tanggal_tenggat);
+
+    // Hitung skor prioritas menggunakan rumus
+    const priorityScore = calculatePriorityScore(
+      prioritas_pesanan, // Skor urgensi
+      kompleksitas_produk, // Skor kompleksitas
+      deadlineScore, // Skor tenggat waktu
+      jumlah_produksi // Skor ukuran pesanan
     );
 
     const pesanan = new Pesanan({
@@ -56,22 +108,17 @@ exports.createPesanan = async (req, res) => {
       tanggal_pesanan,
       tanggal_tenggat,
       jumlah_produksi,
-      prioritas_pesanan,
+      prioritas_pesanan: prioritas_pesanan, // Menyimpan skor urgensi sebagai prioritas pesanan
+      nilai_prioritas: priorityScore, // Menyimpan skor prioritas di nilai_prioritas
+      kompleksitas_produk,
+      estimasi_selesai: tanggal_estimasi_selesai,
       keterangan,
     });
 
     await pesanan.save();
 
-    // Buat jadwal produksi otomatis
-    const jadwalProduksi = new JadwalProduksi({
-      id_pesanan: pesanan._id,
-      tanggal_mulai: null, // Set tanggal mulai sesuai kebutuhan
-      tanggal_selesai: null, // Set tanggal selesai sesuai kebutuhan
-      status: "Menunggu",
-      keterangan: keterangan,
-    });
-
-    await jadwalProduksi.save();
+    // Buat satu jadwal produksi otomatis
+    const jadwalProduksi = await createProductionSchedule(pesanan);
 
     res.status(201).json({
       message: "Pesanan berhasil dibuat dan jadwal produksi telah diatur",
@@ -139,40 +186,53 @@ exports.updatePesanan = async (req, res) => {
       tanggal_pesanan,
       tanggal_tenggat,
       jumlah_produksi,
+      prioritas_pesanan, // Skor urgensi input
+      kompleksitas_produk,
       keterangan,
     } = req.body;
 
     // Validasi input
     if (jumlah_produksi <= 0) {
       return res.status(400).json({
-        message: "Jumlah produksi harus lebih besar dari 0",
+        message: "Jumlah produksi harus lebih dari 0",
       });
     }
 
-    // Temukan pesanan yang akan diperbarui
+    // Cari pesanan berdasarkan ID
     const pesanan = await Pesanan.findById(req.params.id);
-
     if (!pesanan) {
       return res.status(404).json({
         message: "Pesanan tidak ditemukan",
       });
     }
 
-    // Update pesanan dengan data yang baru
-    pesanan.id_customer = id_customer || pesanan.id_customer;
-    pesanan.nama_produk = nama_produk || pesanan.nama_produk;
-    pesanan.tanggal_pesanan = tanggal_pesanan || pesanan.tanggal_pesanan;
-    pesanan.tanggal_tenggat = tanggal_tenggat || pesanan.tanggal_tenggat;
-    pesanan.jumlah_produksi = jumlah_produksi || pesanan.jumlah_produksi;
-    pesanan.keterangan = keterangan || pesanan.keterangan;
+    // Hitung ulang skor deadline
+    const deadlineScore = calculateDeadlineScore(tanggal_tenggat);
 
-    // Hitung prioritas pesanan menggunakan model ROBS
-    pesanan.prioritas_pesanan = calculateROBSPriority(
-      pesanan.tanggal_pesanan,
-      pesanan.tanggal_tenggat
+    // Hitung ulang skor prioritas
+    const updatedPriorityScore = calculatePriorityScore(
+      prioritas_pesanan, // Skor urgensi
+      kompleksitas_produk, // Skor kompleksitas
+      deadlineScore, // Skor tenggat waktu
+      jumlah_produksi // Skor ukuran pesanan
     );
 
-    const updatedPesanan = await pesanan.save();
+    // Update pesanan dengan nilai baru termasuk prioritas
+    const updatedPesanan = await Pesanan.findByIdAndUpdate(
+      req.params.id,
+      {
+        id_customer,
+        nama_produk,
+        tanggal_pesanan,
+        tanggal_tenggat,
+        jumlah_produksi,
+        prioritas_pesanan, // Simpan nilai urgensi di prioritas_pesanan
+        nilai_prioritas: updatedPriorityScore, // Simpan skor prioritas di nilai_prioritas
+        kompleksitas_produk,
+        keterangan,
+      },
+      { new: true }
+    );
 
     res.status(200).json({
       message: "Pesanan berhasil diperbarui",
@@ -189,8 +249,7 @@ exports.updatePesanan = async (req, res) => {
 // Delete a pesanan by ID
 exports.deletePesanan = async (req, res) => {
   try {
-    // Temukan pesanan berdasarkan ID
-    const pesanan = await Pesanan.findById(req.params.id);
+    const pesanan = await Pesanan.findByIdAndDelete(req.params.id);
 
     if (!pesanan) {
       return res.status(404).json({
@@ -198,27 +257,8 @@ exports.deletePesanan = async (req, res) => {
       });
     }
 
-    // Temukan semua SPK yang terkait dengan pesanan ini
-    const spkList = await SPK.find({ id_pesanan: pesanan._id });
-
-    // Hapus jadwal produksi dan SPK yang terkait jika ada
-    if (spkList.length > 0) {
-      for (const spk of spkList) {
-        if (spk.id_jadwal_produksi) {
-          await JadwalProduksi.findByIdAndDelete(spk.id_jadwal_produksi);
-        }
-        await SPK.findByIdAndDelete(spk._id);
-      }
-    }
-
-    // Hapus jadwal produksi yang terkait dengan pesanan tanpa memeriksa SPK
-    await JadwalProduksi.deleteMany({ id_pesanan: pesanan._id });
-
-    // Hapus pesanan
-    await Pesanan.findByIdAndDelete(req.params.id);
-
     res.status(200).json({
-      message: "Pesanan, SPK, dan jadwal produksi terkait berhasil dihapus",
+      message: "Pesanan berhasil dihapus",
     });
   } catch (err) {
     res.status(500).json({

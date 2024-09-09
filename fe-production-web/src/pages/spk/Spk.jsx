@@ -122,7 +122,8 @@ function Spk() {
         header: "Nama Produk",
       },
       {
-        accessorFn: (row) => row.id_pesanan?.jumlah_produksi + "/Pcs" || "",
+        accessorFn: (row) =>
+          row.id_jadwal_produksi?.jumlah_produksi + "/Pcs" || "",
         header: "Jumlah Produksi",
       },
       {

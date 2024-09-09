@@ -12,7 +12,7 @@ const pesananSchema = new mongoose.Schema(
     },
     kode_pesanan: {
       type: String,
-      unique: true, // Pastikan kode_pesanan unik
+      unique: true,
     },
     nama_produk: {
       type: String,
@@ -32,13 +32,30 @@ const pesananSchema = new mongoose.Schema(
     },
     status_pesanan: {
       type: String,
-      enum: ["Menunggu", "Diproses", "Selesai", "Dibatalkan", "Dijeda", "Telat"],
+      enum: [
+        "Menunggu",
+        "Diproses",
+        "Selesai",
+        "Dibatalkan",
+        "Dijeda",
+        "Telat",
+      ],
       default: "Menunggu",
     },
     prioritas_pesanan: {
-      type: String,
-      enum: ["Rendah", "Sedang", "Tinggi"],
-      default: "Sedang",
+      type: Number, // Skor urgensi dari 1 hingga 5
+      required: true,
+    },
+    estimasi_selesai: {
+      type: Date,
+      required: true,
+    },
+    nilai_prioritas: {
+      type: Number, // Nilai prioritas untuk pengurutan
+    },
+    kompleksitas_produk: {
+      type: Number, // Skor kompleksitas dari 1 hingga 5
+      required: true,
     },
     keterangan: {
       type: String,

@@ -6,6 +6,7 @@ import { PrintProvider } from "./context/PrintContext";
 import { SpkProvider } from "./context/SpkContext";
 import { UserProvider } from "./context/UserContext";
 import MainRoute from "./routes/MainRoute";
+import "@syncfusion/ej2-react-schedule/styles/material.css";
 
 function App() {
   return (

@@ -19,6 +19,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { usePrint } from "@/context/PrintContext";
+import ProductionScheduler from "@/components/ProductionScheduler";
 
 function Dashboard() {
   const { cetak, loading } = usePrint();
@@ -62,6 +63,9 @@ function Dashboard() {
       <div>
         <Cards />
       </div>
+      {/* <div>
+        <ProductionScheduler />
+      </div> */}
       <div className="mt-5">
         <div className="mb-5">
           <div className="text-xl font-bold">Grafik Produksi</div>

@@ -55,7 +55,7 @@ export const PesananProvider = ({ children }) => {
       setPesanan((prevPesanan) => [...prevPesanan, response.data]);
       toast.success("Pesanan berhasil ditambahkan");
     } catch (error) {
-      toast.error("Gagal menambahkan pesanan");
+      toast.error("Gagal menambahkan pesanan", error.response.data);
       console.log(error);
     } finally {
       setLoading(false);
